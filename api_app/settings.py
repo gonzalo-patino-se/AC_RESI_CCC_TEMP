@@ -47,7 +47,7 @@ MIDDLEWARE = [
 ]
 
 
-ROOT_URLCONF = 'project.urls'
+ROOT_URLCONF = 'api_app.urls'
 
 TEMPLATES = [
     {
@@ -64,7 +64,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'project.wsgi.application'
+WSGI_APPLICATION = 'api_app.wsgi.application'
 
 
 # Database
