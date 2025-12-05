@@ -149,3 +149,10 @@ LOGIN_URL = "login"   # named URL provided by django.contrib.auth.urls
 LOGIN_REDIRECT_URL = "home"   # after successful login, go to /
 LOGOUT_REDIRECT_URL = "login" # after logout, go to the login page
 
+
+# External EV Advisor settings (dotenv-driven)
+EXTERNAL_API_BASE_URL = os.getenv("EXTERNAL_API_BASE_URL", "").strip()
+EXTERNAL_API_KEY = os.getenv("EXTERNAL_API_KEY", "").strip()
+EXTERNAL_API_TIMEOUT = int(os.getenv("EXTERNAL_API_TIMEOUT", "10"))
+EXTERNAL_API_RETRIES = int(os.getenv("EXTERNAL_API_RETRIES", "2"))
+
