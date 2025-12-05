@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Register</h1>
+
+  {# Show non-field errors #}
+  {% if form.non_field_errors %}
+    <div style="color:#b00020;">
+      {% for err in form.non_field_errors %}
+        <p>{{ err }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    <p>
+      {{ form.username.label_tag }}<br>
+      {{ form.username }}
+      {% if form.username.errors %}
+        <br>
+        <small style="color:#b00020;">{{ form.username.errors.0 }}</small>
+      {% endif %}
+    </p>
+
+    <p>
+      {{ form.password1.label_tag }}<br>
+      {{ form.password1 }}
+      {% if form.password1.errors %}
+        <br>
+        <small style="color:#b00020;">{{ form.password1.errors.0 }}</small>
+      {% endif %}
+    </p>
+
+    <p>
+      {{ form.password2.label_tag }}<br>
+      {{ form.password2 }}
+      {% if form.password2.errors %}
+        <br>
+        <small style="color:#b00020;">{{ form.password2.errors.0 }}</small>
+      {% endif %}
+    </p>
+
+    <button type="submit">Register</button>
+  </form>
+
+  <p style="margin-top:1rem;">
+    Already have an account? <a href="{% url 'login' %}">Sign in</a>
+  </p>
+{% endblock %}
