@@ -16,21 +16,28 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
 from django.contrib.auth import views as auth_views
-
 from django.http import HttpResponse
+from django.shortcuts import render
 
+from accounts import views as accounts_views
+
+from django.contrib.auth.decorators import login_required
+
+
+
+@login_required
 def home(request):
-    return HttpResponse("Django is running securely!")
+    return render(request, "home.html")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", home), #root path
+    path("", accounts_views.home, name="home"),
     path("accounts/", include("django.contrib.auth.urls")), 
-    
+    path("accounts/logout/", accounts_views.logout, name="logout"),    # our own logout
     path("accounts/login/", auth_views.LoginView.as_view(
-        template_name="registration/login.html"
-    ), name="login"),
+        template_name="registration/login.html"), 
+        name="login"
+        ),
 
 ]

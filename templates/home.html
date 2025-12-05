@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+
+  <h1>Dashboard</h1>
+  <p>Signed in as: <strong>{{ request.user.username }}</strong></p>
+  
+  <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Log out</button>
+  </form>
+{% endblock %}

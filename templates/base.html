@@ -1,12 +1,14 @@
-
+{% load static %}
 <!doctype html>
 <html lang="en">
     <head>
         <meta charset="utf-8">
         <title>MVT Secure App</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="session-timeout" content="{{ request.session.get_expiry_age|default:300 }}">
     </head>
     <body>
         {% block content %}{% endblock %}
+        <script src="{% static 'js/session-timeout.js' %}"></script>
     </body>
 </html>

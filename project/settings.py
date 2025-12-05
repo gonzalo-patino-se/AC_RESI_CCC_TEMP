@@ -7,8 +7,6 @@ load_dotenv(BASE_DIR / ".env")
 
 
 
-LOGIN_REDIRECT_URL = "home"   # after successful login, go to /
-LOGOUT_REDIRECT_URL = "login" # after logout, go to the login page
 
 
 
@@ -37,15 +35,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",  # sessions
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",            # CSRF
+    "django.contrib.auth.middleware.AuthenticationMiddleware",  # auth
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
 
 ROOT_URLCONF = 'project.urls'
 
@@ -113,11 +113,39 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+
+
+# Use local memory cache
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "dev-inproc-cache",
+    }
+}
+
+
+#Session configuration (Django native)
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Logout when browser closes
+SESSION_COOKIE_AGE = int(os.getenv("SESSION_COOKIE_AGE", "1800"))  # 30 minutes default
+SESSION_SAVE_EVERY_REQUEST = True  # Update session on every request
+
+
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_SECURE = False     # Set to True in production with HTTPS
+
+
+LOGIN_URL = "login"   # named URL provided by django.contrib.auth.urls
+LOGIN_REDIRECT_URL = "home"   # after successful login, go to /
+LOGOUT_REDIRECT_URL = "login" # after logout, go to the login page
 

@@ -1,9 +1,42 @@
-
 {% extends "base.html" %}
 {% block content %}
-    <h1>Sign in</h1>
-        <form method="post" action="{% url{ form.as_p }}
-            <button type="submit">Log in</button>
-            <input type="hidden" name="next" value="{{ next }}">
-        </form>
+  <h1>Sign in</h1>
+
+  {# Show non-field and field errors clearly #}
+  {% if form.non_field_errors %}
+    <div style="color:#b00020;">
+      {% for err in form.non_field_errors %}
+        <p>{{ err }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    <p>
+      {{ form.username.label_tag }}<br>
+      {{ form.username }}
+      {% if form.username.errors %}
+        <br>
+        <small style="color:#b00020;">{{ form.username.errors.0 }}</small>
+      {% endif %}
+    </p>
+
+    <p>
+      {{ form.password.label_tag }}<br>
+      {{ form.password }}
+      {% if form.password.errors %}
+        <br>
+        <small style="color:#b00020;">{{ form.password.errors.0 }}</small>
+      {% endif %}
+    </p>
+
+    <button type="submit">Log in</button>
+    <input type="hidden" name="next" value="{{ next }}">
+  </form>
+
+  <p style="margin-top:1rem;">
+    <a href="{% url 'password_reset' %}">Forgot password?</a>
+  </p>
 {% endblock %}
