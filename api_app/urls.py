@@ -14,4 +14,7 @@ urlpatterns = [
     
     #Charger by chargerID
     path('api/charger-lookup/id/<str:charger_id>/', views.charger_by_id, name='charger_by_id'),
+    
+    #Capabilities
+    path('api/charger/<uuid:charger_id>/capabilities/', views.charger_capabilities, name='charger_capabilities'),
 ]

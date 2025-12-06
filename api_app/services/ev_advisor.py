@@ -150,3 +150,25 @@ class EVAdvisorClient:
             raise RuntimeError(f"Upstream server error ({resp.status_code})")
         else:
             raise RuntimeError(f"Unexpected status: {resp.status_code} - {resp.text[:200]}")
+
+    
+    def get_capabilities(self, charger_id: str) -> Dict[str, Any]:
+        """
+        EV Advisor: GET /controller/api/v1.0/charger/{chargerId}/capabilities
+        Returns a capabilities object (flags and limits).
+        """
+        cid = (charger_id or "").strip()
+        if not cid or len(cid) < 8:
+            raise ValueError("Invalid chargerId format")
+
+        url = f"{self.base_url}/controller/api/v1.0/charger/{cid}/capabilities"
+        resp = self._get(url)
+
+        if resp.status_code == 200:
+            return resp.json()
+        elif resp.status_code == 403:
+            raise PermissionError("Forbidden (invalid or missing ApiKey)")
+        elif resp.status_code == 500:
+            raise RuntimeError("Upstream server error (500)")
+        else:
+            raise RuntimeError(f"Unexpected status: {resp.status_code} - {resp.text[:200]}")
