@@ -21,6 +21,6 @@ urlpatterns = [
     #Cloud status
     path('api/charger/<uuid:charger_id>/cloudstatus/', views.charger_cloudstatus, name='charger_cloudstatus'),
     
-    #Charge history
+    #Charge history #FIXME: I am able to get 200 but empty arrays perhaps because there is no data?
     path('api/charger/<uuid:charger_id>/charge-history/', views.charger_charge_history, name='charger_charge_history'),
 ]
