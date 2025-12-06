@@ -17,4 +17,7 @@ urlpatterns = [
     
     #Capabilities
     path('api/charger/<uuid:charger_id>/capabilities/', views.charger_capabilities, name='charger_capabilities'),
+    
+    #Cloud status
+    path('api/charger/<uuid:charger_id>/cloudstatus/', views.charger_cloudstatus, name='charger_cloudstatus'),
 ]

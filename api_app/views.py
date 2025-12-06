@@ -9,6 +9,29 @@ import logging
 log = logging.getLogger(__name__)
 
 
+
+#Cloud Status
+#@login_required(login_url='login')
+@require_GET
+def charger_cloudstatus(request, charger_id: str):
+    """
+    Proxy: Cloud/Charger status for a chargerId.
+    """
+    client = EVAdvisorClient.from_settings()
+    try:
+        data = client.get_cloud_status(str(charger_id))
+        return JsonResponse(data, safe=False, status=200)
+    except ValueError as ve:
+        return JsonResponse({"error": str(ve)}, status=400)
+    except PermissionError as pe:
+        return JsonResponse({"error": str(pe)}, status=403)
+    except FileNotFoundError as nf:
+        return JsonResponse({"error": str(nf)}, status=404)
+    except RuntimeError as re:
+        return JsonResponse({"error": str(re)}, status=502)
+
+
+
 #@login_required(login_url='login')
 @require_GET
 def charger_capabilities(request, charger_id: str):

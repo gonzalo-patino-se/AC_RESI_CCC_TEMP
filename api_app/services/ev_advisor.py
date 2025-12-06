@@ -172,3 +172,36 @@ class EVAdvisorClient:
             raise RuntimeError("Upstream server error (500)")
         else:
             raise RuntimeError(f"Unexpected status: {resp.status_code} - {resp.text[:200]}")
+        
+    
+    def get_cloud_status(self, charger_id: str) -> Dict[str, Any]:
+        """
+        EV Advisor: GET /controller/api/v1.0/charger/{chargerId}/cloudstatus
+        Header: ApiKey
+
+        Returns:
+            JSON object with cloud and charger status.
+
+        Errors:
+            PermissionError: 403
+            FileNotFoundError: 404
+            RuntimeError: 5xx or unexpected code
+        """
+        cid = (charger_id or "").strip()
+        if not cid or len(cid) < 8:
+            raise ValueError("Invalid chargerId format")
+
+        url = f"{self.base_url}/controller/api/v1.0/charger/{cid}/cloudstatus"
+        resp = self._get(url)
+
+        if resp.status_code == 200:
+            return resp.json()
+        elif resp.status_code == 403:
+            raise PermissionError("Forbidden (invalid or missing ApiKey)")
+        elif resp.status_code == 404:
+            raise FileNotFoundError("Charger not found")
+        elif 500 <= resp.status_code < 600:
+            raise RuntimeError(f"Upstream server error ({resp.status_code})")
+        else:
+            raise RuntimeError(f"Unexpected status: {resp.status_code} - {resp.text[:200]}")
+
