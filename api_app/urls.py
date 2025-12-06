@@ -11,4 +11,7 @@ urlpatterns = [
     
     # --- Testable proxy endpoint --
     path('api/charger-lookup/<str:serial>/', views.charger_lookup_by_serial, name='charger_lookup_by_serial'),
+    
+    #Charger by chargerID
+    path('api/charger-lookup/id/<str:charger_id>/', views.charger_by_id, name='charger_by_id'),
 ]

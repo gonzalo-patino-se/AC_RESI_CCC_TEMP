@@ -117,3 +117,36 @@ class EVAdvisorClient:
             raise RuntimeError(f"Upstream server error ({resp.status_code})")
         else:
             raise RuntimeError(f"Unexpected status: {resp.status_code} - {resp.text[:200]}")
+
+
+    def get_charger_by_id(self, charger_id: str) -> Dict[str, Any]:
+        """
+        Call EV Advisor: GET /ccc/api/v1.0/{chargerId}
+        Header: ApiKey
+
+        Returns:
+            Charger record (JSON object).
+
+        Errors:
+            PermissionError: 403
+            FileNotFoundError: 404
+            RuntimeError: 5xx or unexpected code
+        """
+        cid = (charger_id or "").strip()
+        # UUIDs contain hex + dashes; keep simple sanity check.
+        if not cid or len(cid) < 8:
+            raise ValueError("Invalid chargerId format")
+
+        url = f"{self.base_url}/ccc/api/v1.0/{cid}"
+        resp = self._get(url)
+
+        if resp.status_code == 200:
+            return resp.json()  # upstream is a JSON object for this endpoint
+        elif resp.status_code == 403:
+            raise PermissionError("Forbidden (invalid or missing ApiKey)")
+        elif resp.status_code == 404:
+            raise FileNotFoundError("Charger not found")
+        elif 500 <= resp.status_code < 600:
+            raise RuntimeError(f"Upstream server error ({resp.status_code})")
+        else:
+            raise RuntimeError(f"Unexpected status: {resp.status_code} - {resp.text[:200]}")
