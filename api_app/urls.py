@@ -20,4 +20,7 @@ urlpatterns = [
     
     #Cloud status
     path('api/charger/<uuid:charger_id>/cloudstatus/', views.charger_cloudstatus, name='charger_cloudstatus'),
+    
+    #Charge history
+    path('api/charger/<uuid:charger_id>/charge-history/', views.charger_charge_history, name='charger_charge_history'),
 ]

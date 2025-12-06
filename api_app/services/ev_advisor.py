@@ -205,3 +205,56 @@ class EVAdvisorClient:
         else:
             raise RuntimeError(f"Unexpected status: {resp.status_code} - {resp.text[:200]}")
 
+    
+    def get_charge_history(
+            self,
+            charger_id: str,
+            start_date: str,
+            end_date: str,
+            id_tag: Optional[str] = None,
+        ) -> List[Dict[str, Any]]:
+            """
+            EV Advisor: GET /controller/api/v1.0/charger/{chargerId}/charge/history
+            Query:
+            - startDate: required
+            - endDate: required
+            - idTag: optional
+            Returns:
+            List of charge history items (JSON array).
+
+            Validates basic inputs; defers business rules to upstream (e.g., start < end).
+            """
+            cid = (charger_id or "").strip()
+            if not cid or len(cid) < 8:
+                raise ValueError("Invalid chargerId format")
+
+            # Minimal ISO date validation: YYYY-MM-DD or full ISO 8601
+            def _is_valid_date(s: str) -> bool:
+                return bool(re.match(r"^\d{4}-\d{2}-\d{2}([T ][0-9:.\-+Z]*)?$", s or ""))
+
+            if not _is_valid_date(start_date) or not _is_valid_date(end_date):
+                raise ValueError("startDate/endDate must be ISO date strings (e.g., 2025-12-05)")
+
+            url = f"{self.base_url}/controller/api/v1.0/charger/{cid}/charge/history"
+            params: Dict[str, str] = {"startDate": start_date, "endDate": end_date}
+            if id_tag:
+                params["idTag"] = id_tag
+
+            # Perform GET with params
+            try:
+                resp = self.session.get(url, params=params, timeout=self.timeout)
+            except (requests.ConnectionError, requests.Timeout) as exc:
+                raise RuntimeError(f"EVAdvisor GET failed: {exc}") from exc
+
+            if resp.status_code == 200:
+                return resp.json()  # upstream returns an array
+            elif resp.status_code == 400:
+                raise ValueError("Bad Request (date range/format)")
+            elif resp.status_code == 403:
+                raise PermissionError("Forbidden (invalid or missing ApiKey)")
+            elif resp.status_code == 404:
+                raise FileNotFoundError("ChargerId not found")
+            elif 500 <= resp.status_code < 600:
+                raise RuntimeError(f"Upstream server error ({resp.status_code})")
+            else:
+                raise RuntimeError(f"Unexpected status: {resp.status_code} - {resp.text[:200]}")
