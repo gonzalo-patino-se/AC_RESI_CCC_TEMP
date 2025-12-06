@@ -1,12 +1,54 @@
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_GET
 from django.contrib.auth.decorators import login_required
 from .services.ev_advisor import EVAdvisorClient
 import logging
-
+from django.http import StreamingHttpResponse, JsonResponse
 
 log = logging.getLogger(__name__)
+
+
+
+#OCPP LOGS LATEST
+
+
+
+
+@require_GET
+def charger_ocpp_logs_latest(request, charger_id: str):
+    client = EVAdvisorClient.from_settings()
+    try:
+        upstream = client.download_latest_ocpp_logs(str(charger_id))
+
+        content_type = upstream.headers.get("Content-Type", "application/octet-stream")
+
+        filename = None
+        cd = upstream.headers.get("Content-Disposition", "")
+        if "filename=" in cd:
+            try:
+                filename = cd.split("filename=", 1)[1].strip().strip('"')
+            except Exception:
+                filename = None
+        if not filename:
+            filename = f"ocpp-logs-{charger_id}-latest.zip"
+
+        body = upstream.content
+        resp = HttpResponse(body, content_type=content_type)
+        resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+        resp["Content-Length"] = str(len(body))
+        resp["Cache-Control"] = "no-cache"
+        # Do NOT set Connection header (WSGI forbids hop-by-hop headers)
+        return resp
+
+    except ValueError as ve:
+        return JsonResponse({"error": str(ve)}, status=400)
+    except PermissionError as pe:
+        return JsonResponse({"error": str(pe)}, status=403)
+    except FileNotFoundError as nf:
+        return JsonResponse({"error": str(nf)}, status=404)
+    except RuntimeError as re:
+        return JsonResponse({"error": str(re)}, status=502)
 
 
 

@@ -23,4 +23,7 @@ urlpatterns = [
     
     #Charge history #FIXME: I am able to get 200 but empty arrays perhaps because there is no data?
     path('api/charger/<uuid:charger_id>/charge-history/', views.charger_charge_history, name='charger_charge_history'),
+    
+    #OCPP-logs latest
+    path('api/charger/<uuid:charger_id>/ocpp-logs/', views.charger_ocpp_logs_latest, name='charger_ocpp_logs_latest'),
 ]

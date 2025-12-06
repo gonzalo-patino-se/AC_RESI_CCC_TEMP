@@ -258,3 +258,41 @@ class EVAdvisorClient:
                 raise RuntimeError(f"Upstream server error ({resp.status_code})")
             else:
                 raise RuntimeError(f"Unexpected status: {resp.status_code} - {resp.text[:200]}")
+            
+
+    def download_latest_ocpp_logs(self, charger_id: str) -> requests.Response:
+        """
+        EV Advisor: GET /ccc/api/v1.0/charger/{chargerId}/logs/download-ocpp-logs
+        Returns:
+            The raw `requests.Response` so caller can stream binary content and headers.
+
+        Errors:
+            ValueError (bad id), PermissionError (403), FileNotFoundError (404),
+            RuntimeError (5xx or unexpected).
+        """
+        cid = (charger_id or "").strip()
+        if not cid or len(cid) < 8:
+            raise ValueError("Invalid chargerId format")
+
+        url = f"{self.base_url}/ccc/api/v1.0/charger/{cid}/logs/download-ocpp-logs"
+
+        # Stream to avoid loading entire file into memory
+        try:
+            resp = self.session.get(url, timeout=self.timeout, stream=True)
+        except (requests.ConnectionError, requests.Timeout) as exc:
+            raise RuntimeError(f"EVAdvisor GET failed: {exc}") from exc
+
+        if resp.status_code == 200:
+            return resp
+        elif resp.status_code == 400:
+            # e.g., wrong input or upstream preconditions
+            raise ValueError("Bad Request")
+        elif resp.status_code == 403:
+            raise PermissionError("Forbidden (invalid or missing ApiKey)")
+        elif resp.status_code == 404:
+            raise FileNotFoundError("ChargerId not found / Ocpp Logs not found")
+        elif 500 <= resp.status_code < 600:
+            raise RuntimeError(f"Upstream server error ({resp.status_code})")
+        else:
+            raise RuntimeError(f"Unexpected status: {resp.status_code} - {resp.text[:200]}")
+    
